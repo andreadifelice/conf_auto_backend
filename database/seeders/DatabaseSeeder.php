@@ -5,12 +5,23 @@ namespace Database\Seeders;
 use App\Models\CarModel;
 use App\Models\Engine;
 use App\Models\Optional;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // 1. Crea un Utente di Test (Questo avrà automaticamente ID 1)
+        /* User::create([
+            'name' => 'Andrea Test',
+            'email' => 'admin@test.com',
+            'password' => Hash::make('password123'),
+            'role' => 'admin' 
+        ]); */
+
+
         // 1. Crea i Modelli d'auto
         $citycar = CarModel::create(['name' => 'Citycar Elettrica', 'base_price' => 20000.00]);
         $suv = CarModel::create(['name' => 'SUV Familiare', 'base_price' => 45000.00]);

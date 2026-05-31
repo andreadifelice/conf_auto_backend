@@ -2,25 +2,35 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Configuration extends Model
 {
-    protected $fillable = ['user_id', 'car_model_id', 'engine_id', 'total_price', 'status'];
+    use HasFactory;
 
-    protected function user(){
-        return $this->belongsTo(User::class);
+    protected $fillable = [
+        'user_id',
+        'car_model_id',
+        'engine_id',
+        'total_price',
+        'status'
+    ];
+
+    public function optionals(): BelongsToMany
+    {
+        return $this->belongsToMany(Optional::class, 'configuration_optional');
     }
 
-    protected function carModel(){
-        return $this->belongsTo(CarModel::class);
+    public function carModel(): BelongsTo
+    {
+        return $this->belongsTo(CarModel::class, 'car_model_id');
     }
 
-    protected function engine(){
-        return $this->belongsTo(Engine::class);
-    }
-
-    protected function optionals(){
-        return $this->belongsTo(Optional::class, 'configuration_optional');
+    public function engine(): BelongsTo
+    {
+        return $this->belongsTo(Engine::class, 'engine_id');
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 
 class CarModelController extends Controller
 {
+    /* mostra tutte le auto disponibili */
     public function index()
     {
         $models = CarModel::query()->where('is_active', true)->get();
