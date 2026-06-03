@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Optional extends Model
 {
-    protected $fillable = ['name', 'category', 'price'];
+    protected $fillable = [
+        'name', 
+        'category', 
+        'price'
+    ];
 
     public function requires(): BelongsToMany
     {

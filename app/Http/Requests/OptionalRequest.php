@@ -4,9 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
-class RegisterRequest extends FormRequest
+class OptionalRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,9 +24,14 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed', Password::defaults()],
-            'role' => ['nullable', 'string']
+            'category' => ['required', 'string', 'max:255'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'car_models' => ['nullable', 'array'],
+            'car_models.*' => ['integer', 'exists:car_models,id'],
+            'requires' => ['nullable', 'array'],
+            'requires.*' => ['integer', 'exists:optionals,id'],
+            'excludes'   => ['nullable', 'array'],
+            'excludes.*' => ['integer', 'exists:optionals,id'],
         ];
     }
 }

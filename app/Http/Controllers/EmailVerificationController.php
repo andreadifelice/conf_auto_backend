@@ -64,7 +64,8 @@ class EmailVerificationController extends Controller
         return $this->redirectFrontend($frontend_url, 'success', 'Email verified successfully.');
     }
 
-    public function resend(Request $request) {
+    public function resend(Request $request) 
+    {
         $user = $request->user();
 
         if($user->hasVerifiedEmail()) {
@@ -82,7 +83,8 @@ class EmailVerificationController extends Controller
         ]);
     }
 
-    private function redirectFrontend(string $base, string $status, string $message) {
+    private function redirectFrontend(string $base, string $status, string $message) 
+    {
         $sep = str_contains($base, '?') ? '&' : '?';
 
         $url = url()->query("{$base}{$sep}status={$status}", ["message" => $message]);

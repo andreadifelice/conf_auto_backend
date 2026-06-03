@@ -3,11 +3,11 @@
 namespace App\Notifications;
 
 use Carbon\Carbon;
-use Illuminate\Notifications\Notification;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 
-class VerifyEmailNotification extends Notification
+class VerifyEmailNotification extends VerifyEmail
 {
     protected function verificationUrl($notifiable): string
     {
