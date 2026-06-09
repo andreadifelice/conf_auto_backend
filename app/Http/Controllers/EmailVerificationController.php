@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SendOtpMail;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
 
 class EmailVerificationController extends Controller
 {
@@ -13,55 +15,60 @@ class EmailVerificationController extends Controller
     {
         $frontend_url = Config::get('app.frontend_url');
 
-        $user = User::query()->find($request->route('id'));
+        $request->validate([
+            'otp' => 'required|numeric|digits:6'
+        ]);
 
-        if(!$user || !hash_equals(sha1($user->getEmailForVerification()), $request->route('hash'))){
-            $message = 'Cannot verify email';
+        $user = $request->user();
 
+        if(!$user){
+            $message = 'Utente non autenticato';
             if($request->expectsJson()){
-                return response()->json([
-                    'success' => false,
-                    'message' => $message
-                ]);
-            }
-            return $this->redirectFrontend($frontend_url, 'invalid', $message);
-        };
-
-        if($request->hasValidSignature()){
-            $message = 'URL signature is not valid';
-
-            if($request->expectsJson()){
-                return response()->json([
-                    'success' => false,
-                    'message' => $message
-                ]);
+                return response()->json(['success' => false, 'message' => $message], 401);
             }
             return $this->redirectFrontend($frontend_url, 'invalid', $message);
         }
 
-        if($user->hasVerifiedEmail()) {
-            $message = 'Email already verified';
+        if($user->otp_code !== $request->otp || now()->greaterThan($user->otp_expires_at)){
+            $message = 'Il codice OTP non è valido o è scaduto';
 
-            if ($request->expectsJson()) {
+            if($request->expectsJson()){
                 return response()->json([
-                    'success' => true,
+                    'success' => false,
                     'message' => $message
-                ]);
+                ], 400);
+            }
+            return $this->redirectFrontend($frontend_url, 'invalid', $message);
+        }
+
+        if($user->hasVerifiedEmail()){
+            $message = 'Email già verificata';
+
+            if($request->expectsJson()){
+                return response()->json([
+                    'success' => false,
+                    'message' => $message
+                ], 422);
             }
             return $this->redirectFrontend($frontend_url, 'success', $message);
         }
 
-        if($user->markEmailAsVerified()) {
+        $user->email_verified_at = now();
+        $user->otp_code = null;
+        $user->otp_expires_at = null;
+
+        if($user->save()){
             event(new Verified($user));
-            if ($request->expectsJson()) {
+
+            if($request->expectsJson()){
                 return response()->json([
                     'success' => true,
-                    'message' => 'Email verified successfully.'
+                    'message' => 'Email verificata con successo'
                 ]);
             }
         }
 
-        return $this->redirectFrontend($frontend_url, 'success', 'Email verified successfully.');
+        return $this->redirectFrontend($frontend_url, 'success', 'Email verificata con successo');
     }
 
     public function resend(Request $request) 
@@ -71,15 +78,20 @@ class EmailVerificationController extends Controller
         if($user->hasVerifiedEmail()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email already verified.'
+                'message' => 'Email già verificata'
             ], 422);
         }
 
-        $user->sendEmailVerificationNotification();
+        $otp = rand(100000, 999999);
+        $user->otp_code = $otp;
+        $user->otp_expires_at = now()->addMinutes(10);
+        $user->save();
+
+        Mail::to($user->email)->send(new SendOtpMail($otp));
 
         return response()->json([
             'success' => true,
-            'message' => 'Verification notification sent successfully.'
+            'message' => 'Codice OTP inviato con successo'
         ]);
     }
 
@@ -87,8 +99,11 @@ class EmailVerificationController extends Controller
     {
         $sep = str_contains($base, '?') ? '&' : '?';
 
-        $url = url()->query("{$base}{$sep}status={$status}", ["message" => $message]);
+        $queryString = http_build_query([
+            'status' => $status,
+            'message' => $message
+        ]);
 
-        return redirect()->away($url);
+        return redirect()->away("{$base}{$sep}{$queryString}");
     }
 }

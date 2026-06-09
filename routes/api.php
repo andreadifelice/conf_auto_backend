@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ColorController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\EngineController;
@@ -24,6 +26,12 @@ Route::controller(AuthController::class)->group(function () {
 Route::get('/car-models', [CarModelController::class, 'index']);
 Route::get('car-models/{id}', [CarModelController::class, 'show']);
 
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{category}', [CategoryController::class, 'show']);
+
+Route::get('/colors', [ColorController::class, 'index']);
+Route::get('/colors/{color}', [ColorController::class, 'show']);
+
 
 Route::middleware(['auth:sanctum', 'verified', IsAdmin::class])->prefix('admin')->group(function (){
     Route::post('/car-models', [CarModelController::class, 'store']);
@@ -40,8 +48,10 @@ Route::middleware(['auth:sanctum', 'verified', IsAdmin::class])->prefix('admin')
 });
 
 Route::middleware('auth:sanctum')->group(function() {
-    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('api.verification.verify');
-    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend']);
+    /* Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('api.verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend']); */
+    Route::post('/email/send-otp', [EmailVerificationController::class, 'resend']);
+    Route::post('/email/verify-otp', [EmailVerificationController::class, 'verify']);
 
     Route::get('/configurations', [ConfigurationController::class, 'index']);
     Route::post('/configurations', [ConfigurationController::class, 'store']);

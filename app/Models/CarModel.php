@@ -3,11 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class CarModel extends Model
 {
-    protected $fillable = ['name', 'description', 'base_price', 'is_active'];
+    protected $fillable = [
+        'category_id',
+        'name',
+        'model',
+        'year',
+        'description',
+        'image_url',
+        'base_price',
+        'is_active',
+    ];
 
     public function engines(): BelongsToMany
     {
@@ -17,6 +27,18 @@ class CarModel extends Model
     public function optionals(): BelongsToMany
     {
         return $this->belongsToMany(Optional::class, 'car_model_optional');
+    }
+
+    public function colors(): BelongsToMany
+    {
+        return $this->belongsToMany(Color::class, 'car_color')
+            ->withPivot('price_surcharge')
+            ->withTimestamps();
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     protected function configurations(){
