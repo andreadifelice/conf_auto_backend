@@ -23,10 +23,14 @@ class CarModelRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:200'],
-            'description' => ['required', 'string', 'max:500'],
+            'model' => ['required', 'string', 'max:200'],
+            'year' => ['required', 'integer', 'min:1900', 'max:' . (date('Y') + 2)],
+            'description' => ['nullable', 'string', 'max:500'],
+            'image_url' => ['nullable', 'string', 'url', 'max:500'],
             'base_price' => ['required', 'numeric', 'min:0'],
-            'is_active' => ['required', 'boolean']
+            'is_active' => ['required', 'boolean'],
         ];
     }
 }

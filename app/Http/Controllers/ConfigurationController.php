@@ -9,6 +9,7 @@ use App\Models\Optional;
 use App\Models\Configuration;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ConfigurationController extends Controller
 {
@@ -61,4 +62,21 @@ class ConfigurationController extends Controller
             ], 500);
         }
     }
+
+    public function downloadReceipt($id)
+{
+    $configuration = Configuration::with(['carModel', 'engine', 'optionals'])->findOrFail($id);
+
+    if ($configuration->user_id !== Auth::id()) {
+        return response()->json([
+            'message' => 'Non sei autorizzato a scaricare questo preventivo.'
+        ], 403);
+    }
+
+    $pdf = Pdf::loadView('receipts.configuration', [
+        'configuration' => $configuration
+    ]);
+
+    return $pdf->download('Preventivo_Auto_' . $configuration->id . '.pdf');
+}
 }

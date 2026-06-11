@@ -7,6 +7,13 @@ use App\Models\Engine;
 
 class EngineController extends Controller
 {
+    public function index()
+    {
+        $engines = Engine::query()->orderBy('name')->get();
+
+        return response()->json($engines);
+    }
+
     public function store(EngineRequest $request)
     {
         $data = $request->validated();

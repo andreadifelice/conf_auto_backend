@@ -21,8 +21,12 @@ class CarModelController extends Controller
             $data['is_active'] = $request->boolean('is_active', true);
 
             $carModel = CarModel::create([
+                'category_id' => $data['category_id'],
                 'name' => $data['name'],
-                'description' => $data['description'],
+                'model' => $data['model'],
+                'year' => $data['year'],
+                'description' => $data['description'] ?? null,
+                'image_url' => $data['image_url'] ?? null,
                 'base_price' => $data['base_price'],
                 'is_active' => $data['is_active'],
             ]);
@@ -81,8 +85,9 @@ class CarModelController extends Controller
     {
         $carmodel = CarModel::with([
             'engines',
+            'colors',
             'optionals.requires',
-            'optionals.excludes'
+            'optionals.excludes',
         ])->where('is_active', true)->findOrFail($id);
         return response()->json($carmodel);
     }

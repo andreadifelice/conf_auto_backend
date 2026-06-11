@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use App\Mail\SendOtpMail;
-use App\Notifications\VerifyEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -25,16 +22,9 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-
-    public function sendEmailVerificationNotification()
+    public function sendEmailVerificationNotification(): void
     {
-        $otp = rand(100000, 999999);
-    
-        $this->otp_code = $otp;
-        $this->otp_expires_at = now()->addMinutes(10);
-        $this->save();
-    
-        Mail::to($this->email)->send(new SendOtpMail($otp));
+        // L'OTP viene inviato solo al login tramite EmailVerificationController::resend
     }
 
 

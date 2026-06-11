@@ -42,6 +42,11 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        if ($user->role === 'admin' && ! $user->hasVerifiedEmail()) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -62,5 +67,34 @@ class AuthController extends Controller
 
     public function user(){
         return new UserResource(Auth::user());
+    }
+
+    public function adminLogin()
+    {
+        if (! app()->isLocal()) {
+            abort(404);
+        }
+
+        $user = User::query()->where('role', 'admin')->first();
+
+        if (! $user) {
+            $user = User::create([
+                'name' => 'Admin',
+                'email' => 'admin@example.com',
+                'password' => 'password',
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ]);
+        } elseif (! $user->hasVerifiedEmail()) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login admin effettuato con successo.',
+            'user' => new UserResource($user),
+            'token' => $token,
+        ]);
     }
 }

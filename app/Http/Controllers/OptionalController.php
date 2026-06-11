@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\DB;
 
 class OptionalController extends Controller
 {
+    public function index()
+    {
+        $optionals = Optional::query()->orderBy('name')->get();
+
+        return response()->json($optionals);
+    }
+
     public function store(OptionalRequest $request)
     {
         $data = $request->validated();
@@ -40,7 +47,7 @@ class OptionalController extends Controller
                 'data'    => $optional
             ], 201);
         } catch (\Throwable $e) {
-            DB::roolBack();
+            DB::rollBack();
 
             return response()->json([
                 'message' => 'Errore durante la creazione dell\'optional',

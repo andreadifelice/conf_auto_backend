@@ -75,11 +75,35 @@ class EmailVerificationController extends Controller
     {
         $user = $request->user();
 
+        if ($user->role === 'admin') {
+            if (! $user->hasVerifiedEmail()) {
+                $user->forceFill(['email_verified_at' => now()])->save();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email già verificata',
+                'already_sent' => false,
+            ]);
+        }
+
         if($user->hasVerifiedEmail()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email già verificata'
             ], 422);
+        }
+
+        if (
+            $user->otp_code
+            && $user->otp_expires_at
+            && now()->lessThan($user->otp_expires_at)
+        ) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Codice OTP già inviato. Controlla la tua email.',
+                'already_sent' => true,
+            ]);
         }
 
         $otp = rand(100000, 999999);
@@ -91,7 +115,8 @@ class EmailVerificationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Codice OTP inviato con successo'
+            'message' => 'Codice OTP inviato con successo',
+            'already_sent' => false,
         ]);
     }
 
