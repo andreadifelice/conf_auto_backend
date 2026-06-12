@@ -15,6 +15,13 @@ class OptionalController extends Controller
         return response()->json($optionals);
     }
 
+    public function show(Optional $optional)
+    {
+        $optional->load(['requires', 'excludes']);
+
+        return response()->json($optional);
+    }
+
     public function store(OptionalRequest $request)
     {
         $data = $request->validated();

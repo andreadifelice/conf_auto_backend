@@ -41,6 +41,7 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->prefix('admin')->group(func
     Route::get('/colors', [ColorController::class, 'index']);
     Route::get('/colors/{color}', [ColorController::class, 'show']);
     Route::get('/car-models', [CarModelController::class, 'index']);
+    Route::get('/optionals/{optional}', [OptionalController::class, 'show']);
 
 
     Route::post('/colors', [ColorController::class, 'store']);
