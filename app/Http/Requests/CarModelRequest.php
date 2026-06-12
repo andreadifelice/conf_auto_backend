@@ -28,7 +28,8 @@ class CarModelRequest extends FormRequest
             'model' => ['required', 'string', 'max:200'],
             'year' => ['required', 'integer', 'min:1900', 'max:' . (date('Y') + 2)],
             'description' => ['nullable', 'string', 'max:500'],
-            'image_url' => ['nullable', 'string', 'url', 'max:500'],
+            'images' => ['nullable', 'array', 'max:10'],
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'base_price' => ['required', 'numeric', 'min:0'],
             'is_active' => ['required', 'boolean'],
         ];

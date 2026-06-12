@@ -23,7 +23,7 @@
     <h3>Veicolo e Motore</h3>
     <table class="details-table">
         <tr>
-            <th>Modello</th>
+            <th>Auto</th>
             <td>{{ $configuration->carModel->brand }} {{ $configuration->carModel->name }}</td>
             <td>€ {{ number_format($configuration->carModel->base_price, 2, ',', '.') }}</td>
         </tr>
