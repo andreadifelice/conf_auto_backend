@@ -10,7 +10,7 @@ class OptionalController extends Controller
 {
     public function index()
     {
-        $optionals = Optional::query()->orderBy('name')->get();
+        $optionals = Optional::query()->orderBy('name', 'asc')->get();
 
         return response()->json($optionals);
     }
@@ -104,10 +104,11 @@ class OptionalController extends Controller
     {
         try {
             $optional->carModels()->detach();
+            $optional->configurations()->detach(null);
             $optional->requires()->detach();
             $optional->excludes()->detach();
 
-            $optional->delete();
+            Optional::destroy($optional->id);
 
             return response()->json([
                 'message' => 'Optional eliminato con successo!'

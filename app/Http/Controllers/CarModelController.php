@@ -6,6 +6,7 @@ use App\Http\Requests\CarModelRequest;
 use App\Models\CarModel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class CarModelController extends Controller
 {
@@ -98,11 +99,21 @@ class CarModelController extends Controller
     public function destroy(CarModel $carModel)
     {
         try {
+            if ($carModel->configurations()->exists()) {
+                return response()->json([
+                    'message' => 'Impossibile eliminare questo modello: è ancora usato in una o più configurazioni.',
+                    'configurations_count' => $carModel->configurations()->count(),
+                ], 409);
+            }
+
             DB::beginTransaction();
 
             $carModel->engines()->detach();
             $carModel->optionals()->detach();
             $carModel->colors()->detach();
+            $carModel->images()->pluck('path')->each(function (string $path): void {
+                Storage::disk('public')->delete($path);
+            });
             $carModel->images()->delete();
             CarModel::query()->whereKey($carModel->id)->delete();
 

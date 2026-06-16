@@ -37,4 +37,9 @@ class Optional extends Model
     {
         return $this->belongsToMany(CarModel::class, 'car_model_optional');
     }
+
+    public function configurations(): BelongsToMany
+    {
+        return $this->belongsToMany(Configuration::class, 'configuration_optional');
+    }
 }

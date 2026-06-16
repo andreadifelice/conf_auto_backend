@@ -46,7 +46,7 @@ class CarModel extends Model
         return $this->hasMany(CarModelImage::class)->orderBy('sort_order');
     }
 
-    protected function configurations()
+    public function configurations(): HasMany
     {
         return $this->hasMany(Configuration::class);
     }
