@@ -44,4 +44,39 @@ class ColorController extends Controller
             ], 500);
         }
     }
+
+    public function update(ColorRequest $request, Color $color)
+    {
+        $data = $request->validated();
+
+        try {
+            $color->update($data);
+
+            return response()->json([
+                'message' => 'Colore auto aggiornato con successo!',
+                'data' => $color,
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Errore durante l\'aggiornamento del colore dell\'auto',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function destroy(Color $color)
+    {
+        try {
+            $color->delete();
+
+            return response()->json([
+                'message' => 'Colore auto eliminato con successo!',
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Errore durante l\'eliminazione del colore dell\'auto',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

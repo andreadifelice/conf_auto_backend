@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EngineRequest;
 use App\Models\Engine;
+use Illuminate\Support\Facades\DB;
 
 class EngineController extends Controller
 {
     public function index()
     {
-        $engines = Engine::query()->orderBy('name')->get();
+        $engines = Engine::query()->orderBy('name', 'asc')->get();
 
         return response()->json($engines);
     }
@@ -59,14 +60,22 @@ class EngineController extends Controller
     public function destroy(Engine $engine)
     {
         try {
-            $engine->delete();
+            DB::beginTransaction();
+
+            $engine->carModels()->detach();
+            Engine::query()->whereKey($engine->id)->delete();
+
+            DB::commit();
+
             return response()->json([
-                'message' => 'Modello di auto eliminato con successo!'
+                'message' => 'Motore auto eliminato con successo!',
             ], 200);
         } catch (\Throwable $e) {
+            DB::rollBack();
+
             return response()->json([
-                'message' => 'Modello di auto eliminato con successo!',
-                'error' => $e->getMessage()
+                'message' => 'Errore durante l\'eliminazione del motore dell\'auto',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

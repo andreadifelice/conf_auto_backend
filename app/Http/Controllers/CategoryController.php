@@ -42,4 +42,39 @@ class CategoryController extends Controller
 
         return response()->json($category);
     }
+
+    public function update(CategoryRequest $request, Category $category)
+    {
+        $data = $request->validated();
+
+        try {
+            $category->update($data);
+
+            return response()->json([
+                'message' => 'Categoria aggiornata con successo',
+                'data' => $category,
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Errore durante l\'aggiornamento della categoria',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function destroy(Category $category)
+    {
+        try {
+            $category->delete();
+
+            return response()->json([
+                'message' => 'Categoria eliminata con successo',
+            ], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Errore durante l\'eliminazione della categoria',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

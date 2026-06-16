@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Engine extends Model
 {
@@ -13,7 +14,8 @@ class Engine extends Model
         'additional_price'
     ];
 
-    protected function carModels(){
+    public function carModels(): BelongsToMany
+    {
         return $this->belongsToMany(CarModel::class);
     }
 }

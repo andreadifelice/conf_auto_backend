@@ -11,6 +11,7 @@ use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\EngineController;
 use App\Http\Controllers\OptionalController;
+use App\Http\Controllers\OptionalCompatibilityController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,15 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->prefix('admin')->group(func
     Route::get('/colors/{color}', [ColorController::class, 'show']);
     Route::get('/car-models', [CarModelController::class, 'index']);
     Route::get('/optionals/{optional}', [OptionalController::class, 'show']);
+    Route::get('/car-model-engines', [CarModelEngineController::class, 'index']);
+    Route::get('/car-model-engines/{carModel}/{engine}', [CarModelEngineController::class, 'show']);
+    Route::get('/car-model-optionals', [CarModelOptionalController::class, 'index']);
+    Route::get('/car-model-optionals/{carModel}/{optional}', [CarModelOptionalController::class, 'show']);
+    Route::get('/car-colors', [CarColorController::class, 'index']);
+    Route::get('/car-colors/{carModel}/{color}', [CarColorController::class, 'show']);
+    Route::get('/optional-compatibilities', [OptionalCompatibilityController::class, 'index']);
+    Route::get('/optional-compatibilities/{optional}/{type}/{relatedOptional}', [OptionalCompatibilityController::class, 'show'])
+        ->whereIn('type', ['requires', 'excludes']);
 
 
     Route::post('/colors', [ColorController::class, 'store']);
@@ -50,6 +60,7 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->prefix('admin')->group(func
     Route::post('/car-model-optionals', [CarModelOptionalController::class, 'store']);
     Route::post('/optionals', [OptionalController::class, 'store']);
     Route::post('/car-colors', [CarColorController::class, 'store']);
+    Route::post('/optional-compatibilities', [OptionalCompatibilityController::class, 'store']);
     Route::post('/car-models', [CarModelController::class, 'store']);
     Route::post('/categories', [CategoryController::class, 'store']);
 
@@ -57,11 +68,25 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->prefix('admin')->group(func
     Route::put('/optionals/{optional}', [OptionalController::class, 'update']);
     Route::put('/car-models/{carModel}', [CarModelController::class, 'update']);
     Route::put('/engines/{engine}', [EngineController::class, 'update']);
+    Route::put('/colors/{color}', [ColorController::class, 'update']);
+    Route::put('/categories/{category}', [CategoryController::class, 'update']);
+    Route::put('/car-model-engines/{carModel}/{engine}', [CarModelEngineController::class, 'update']);
+    Route::put('/car-model-optionals/{carModel}/{optional}', [CarModelOptionalController::class, 'update']);
+    Route::put('/car-colors/{carModel}/{color}', [CarColorController::class, 'update']);
+    Route::put('/optional-compatibilities/{optional}/{type}/{relatedOptional}', [OptionalCompatibilityController::class, 'update'])
+        ->whereIn('type', ['requires', 'excludes']);
     
     
     Route::delete('/car-models/{carModel}', [CarModelController::class, 'destroy']);
     Route::delete('/engines/{engine}', [EngineController::class, 'destroy']);
     Route::delete('/optionals/{optional}', [OptionalController::class, 'destroy']);
+    Route::delete('/colors/{color}', [ColorController::class, 'destroy']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+    Route::delete('/car-model-engines/{carModel}/{engine}', [CarModelEngineController::class, 'destroy']);
+    Route::delete('/car-model-optionals/{carModel}/{optional}', [CarModelOptionalController::class, 'destroy']);
+    Route::delete('/car-colors/{carModel}/{color}', [CarColorController::class, 'destroy']);
+    Route::delete('/optional-compatibilities/{optional}/{type}/{relatedOptional}', [OptionalCompatibilityController::class, 'destroy'])
+        ->whereIn('type', ['requires', 'excludes']);
 });
 
 

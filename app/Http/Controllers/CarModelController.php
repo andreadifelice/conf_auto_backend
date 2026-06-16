@@ -98,12 +98,22 @@ class CarModelController extends Controller
     public function destroy(CarModel $carModel)
     {
         try {
-            $carModel->delete();
+            DB::beginTransaction();
+
+            $carModel->engines()->detach();
+            $carModel->optionals()->detach();
+            $carModel->colors()->detach();
+            $carModel->images()->delete();
+            CarModel::query()->whereKey($carModel->id)->delete();
+
+            DB::commit();
 
             return response()->json([
                 'message' => 'Modello di auto eliminato con successo!',
             ], 200);
         } catch (\Throwable $e) {
+            DB::rollBack();
+
             return response()->json([
                 'message' => 'Errore durante l\'eliminazione del modello di auto',
                 'error' => $e->getMessage(),
