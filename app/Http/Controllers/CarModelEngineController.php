@@ -17,13 +17,16 @@ class CarModelEngineController extends Controller
             ->flatMap(function (CarModel $carModel) {
                 return $carModel->engines->map(function (Engine $engine) use ($carModel) {
                     return [
+                        'id' => $engine->pivot->id,
                         'car_model_id' => $carModel->id,
                         'car_model_name' => $carModel->name,
                         'engine_id' => $engine->id,
                         'engine_name' => $engine->name,
+                        'created_at' => $engine->pivot->created_at,
                     ];
                 });
             })
+            ->sortByDesc('created_at')
             ->values();
 
         return response()->json($associations);

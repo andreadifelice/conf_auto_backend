@@ -17,13 +17,16 @@ class CarModelOptionalController extends Controller
             ->flatMap(function (CarModel $carModel) {
                 return $carModel->optionals->map(function (Optional $optional) use ($carModel) {
                     return [
+                        'id' => $optional->pivot->id,
                         'car_model_id' => $carModel->id,
                         'car_model_name' => $carModel->name,
                         'optional_id' => $optional->id,
                         'optional_name' => $optional->name,
+                        'created_at' => $optional->pivot->created_at,
                     ];
                 });
             })
+            ->sortByDesc('created_at')
             ->values();
 
         return response()->json($associations);

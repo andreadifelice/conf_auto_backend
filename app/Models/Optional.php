@@ -20,7 +20,7 @@ class Optional extends Model
             'optional_compatibilities', 
             'optional_id', 
             'requires_optional_id'
-        );
+        )->withTimestamps();
     }
 
     public function excludes(): BelongsToMany
@@ -30,12 +30,13 @@ class Optional extends Model
             'optional_compatibilities', 
             'optional_id', 
             'excludes_optional_id'
-        );
+        )->withTimestamps();
     }
 
     public function carModels(): BelongsToMany
     {
-        return $this->belongsToMany(CarModel::class, 'car_model_optional');
+        return $this->belongsToMany(CarModel::class, 'car_model_optional')
+            ->withTimestamps();
     }
 
     public function configurations(): BelongsToMany

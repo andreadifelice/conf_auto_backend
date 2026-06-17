@@ -17,26 +17,31 @@ class OptionalCompatibilityController extends Controller
             ->flatMap(function (Optional $optional) {
                 $requires = $optional->requires->map(function (Optional $relatedOptional) use ($optional) {
                     return [
+                        'id' => $relatedOptional->pivot->id,
                         'optional_id' => $optional->id,
                         'optional_name' => $optional->name,
                         'type' => 'requires',
                         'related_optional_id' => $relatedOptional->id,
                         'related_optional_name' => $relatedOptional->name,
+                        'created_at' => $relatedOptional->pivot->created_at,
                     ];
                 });
 
                 $excludes = $optional->excludes->map(function (Optional $relatedOptional) use ($optional) {
                     return [
+                        'id' => $relatedOptional->pivot->id,
                         'optional_id' => $optional->id,
                         'optional_name' => $optional->name,
                         'type' => 'excludes',
                         'related_optional_id' => $relatedOptional->id,
                         'related_optional_name' => $relatedOptional->name,
+                        'created_at' => $relatedOptional->pivot->created_at,
                     ];
                 });
 
                 return $requires->concat($excludes);
             })
+            ->sortByDesc('created_at')
             ->values();
 
         return response()->json($compatibilities);

@@ -21,12 +21,14 @@ class CarModel extends Model
 
     public function engines(): BelongsToMany
     {
-        return $this->belongsToMany(Engine::class, 'car_model_engine');
+        return $this->belongsToMany(Engine::class, 'car_model_engine')
+            ->withTimestamps();
     }
 
     public function optionals(): BelongsToMany
     {
-        return $this->belongsToMany(Optional::class, 'car_model_optional');
+        return $this->belongsToMany(Optional::class, 'car_model_optional')
+            ->withTimestamps();
     }
 
     public function colors(): BelongsToMany

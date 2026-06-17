@@ -17,14 +17,17 @@ class CarColorController extends Controller
             ->flatMap(function (CarModel $carModel) {
                 return $carModel->colors->map(function (Color $color) use ($carModel) {
                     return [
+                        'id' => $color->pivot->id,
                         'car_model_id' => $carModel->id,
                         'car_model_name' => $carModel->name,
                         'color_id' => $color->id,
                         'color_name' => $color->name,
                         'price_surcharge' => (int) $color->pivot->price_surcharge,
+                        'created_at' => $color->pivot->created_at,
                     ];
                 });
             })
+            ->sortByDesc('created_at')
             ->values();
 
         return response()->json($associations);

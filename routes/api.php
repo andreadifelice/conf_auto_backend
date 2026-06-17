@@ -12,6 +12,7 @@ use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\EngineController;
 use App\Http\Controllers\OptionalController;
 use App\Http\Controllers\OptionalCompatibilityController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,12 @@ Route::controller(AuthController::class)->group(function () {
     if (app()->isLocal()) {
         Route::post('/admin/login', 'adminLogin');
     }
+});
+
+
+Route::controller(PasswordResetController::class)->group(function(){
+    Route::post('/forgot-password', 'forgotPassword');
+    Route::post('/reset-password', 'resetPassword');
 });
 
 
