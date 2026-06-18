@@ -34,7 +34,7 @@ class CategoryController extends Controller
         }
     }
 
-    public function show(Category $category): JsonResponse
+    public function show(Category $category)
     {
         $category->load([
             'carModels' => fn ($query) => $query->where('is_active', true),
