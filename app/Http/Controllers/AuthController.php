@@ -14,7 +14,7 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
-        $data = $request-> validated();
+        $data = $request->validated();
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -69,23 +69,27 @@ class AuthController extends Controller
         return new UserResource(Auth::user());
     }
 
-    public function adminLogin()
+    public function adminLogin(LoginRequest $request)
     {
-        if (! app()->isLocal()) {
-            abort(404);
+        $credentials = $request->validated();
+
+        if (! Auth::attempt($credentials)) {
+            return response()->json([
+                'message' => 'Credenziali non valide',
+            ], 401);
         }
 
-        $user = User::query()->where('role', 'admin')->first();
+        $user = Auth::user();
 
-        if (! $user) {
-            $user = User::create([
-                'name' => 'Admin',
-                'email' => 'admin@example.com',
-                'password' => 'password',
-                'role' => 'admin',
-                'email_verified_at' => now(),
-            ]);
-        } elseif (! $user->hasVerifiedEmail()) {
+        if ($user->role !== 'admin') {
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Accesso riservato agli amministratori',
+            ], 403);
+        }
+
+        if (! $user->hasVerifiedEmail()) {
             $user->forceFill(['email_verified_at' => now()])->save();
         }
 

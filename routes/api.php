@@ -25,9 +25,7 @@ Route::get('/', function () {
 Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
-    if (app()->isLocal()) {
-        Route::post('/admin/login', 'adminLogin');
-    }
+    Route::post('/admin/login', 'adminLogin');
 });
 
 
