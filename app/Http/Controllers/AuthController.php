@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    public function index() {
+        return UserResource::collection(User::all());
+    }
+
+
     public function register(RegisterRequest $request)
     {
         $data = $request->validated();
@@ -29,7 +34,6 @@ class AuthController extends Controller
             'user' => new UserResource($user)
         ], 201);
     }
-
 
     public function login(LoginRequest $request)
     {

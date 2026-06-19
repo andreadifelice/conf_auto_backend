@@ -21,7 +21,7 @@ Route::get('/', function () {
     return response()->json(['message' => 'welcome']);
 });
 
-Route::get('/user', [AuthController::class, 'user']);
+Route::get('/users', [UserController::class, 'index']);
 
 
 Route::controller(AuthController::class)->group(function () {
