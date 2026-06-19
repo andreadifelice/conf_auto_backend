@@ -15,8 +15,9 @@ class Configuration extends Model
         'user_id',
         'car_model_id',
         'engine_id',
+        'color_id',
         'total_price',
-        'status'
+        'status',
     ];
 
     public function optionals(): BelongsToMany
@@ -32,5 +33,10 @@ class Configuration extends Model
     public function engine(): BelongsTo
     {
         return $this->belongsTo(Engine::class, 'engine_id');
+    }
+
+    public function color(): BelongsTo
+    {
+        return $this->belongsTo(Color::class);
     }
 }

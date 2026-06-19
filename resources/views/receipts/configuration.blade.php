@@ -20,18 +20,30 @@
         <p>Data: {{ $configuration->created_at->format('d/m/Y') }} | Ordine N°: {{ $configuration->id }}</p>
     </div>
 
-    <h3>Veicolo e Motore</h3>
     <table class="details-table">
         <tr>
-            <th>Auto</th>
-            <td>{{ $configuration->carModel->brand }} {{ $configuration->carModel->name }}</td>
-            <td>€ {{ number_format($configuration->carModel->base_price, 2, ',', '.') }}</td>
+            <th>Marca</th>
+            <td>{{ $configuration->carModel->name }}</td>
         </tr>
         <tr>
-            <th>Motorizzazione</th>
+            <th>Modello</th>
+            <td>{{ $configuration->carModel->model }}</td>
+        </tr>
+        <tr>
+            <th>Motore</th>
             <td>{{ $configuration->engine->name }}</td>
             <td>€ {{ number_format($configuration->engine->additional_price, 2, ',', '.') }}</td>
         </tr>
+        <tr>
+            <th>Alimentazione</th>
+            <td>{{ $configuration->engine->fuel_type }}</td>
+        </tr>
+        @if($configuration->color)
+        <tr>
+            <th>Colore</th>
+            <td>{{ $configuration->color->name }}</td>
+        </tr>
+        @endif
     </table>
 
     @if($configuration->optionals->isNotEmpty())
