@@ -21,6 +21,8 @@ Route::get('/', function () {
     return response()->json(['message' => 'welcome']);
 });
 
+Route::get('/user', [AuthController::class, 'user']);
+
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
@@ -102,7 +104,6 @@ Route::middleware('auth:sanctum')->group(function() {
 
     
     Route::middleware(['verified'])->group(function () {
-        Route::get('/user', [AuthController::class, 'user']);
         Route::apiResource('users', UserController::class)->only(['index', 'update']);
 
 
