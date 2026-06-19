@@ -21,7 +21,7 @@ return [
 
     'allowed_origins' => [
         'http://localhost:5173',
-        'https://tuo-frontend-online.vercel.app',
+        'https://conf-auto-frontend.vercel.app',
     ],
 
     'allowed_origins_patterns' => [],
