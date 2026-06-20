@@ -48,7 +48,7 @@ Route::get('/optionals', [OptionalController::class, 'index']);
 Route::middleware(['auth:sanctum', IsAdmin::class])->prefix('admin')->group(function (){
     Route::get('/colors', [ColorController::class, 'index']);
     Route::get('/colors/{color}', [ColorController::class, 'show']);
-    Route::get('/car-models', [CarModelController::class, 'index']);
+    Route::get('/car-models', [CarModelController::class, 'adminIndexs']);
     Route::get('/optionals/{optional}', [OptionalController::class, 'show']);
     Route::get('/car-model-engines', [CarModelEngineController::class, 'index']);
     Route::get('/car-model-engines/{carModel}/{engine}', [CarModelEngineController::class, 'show']);

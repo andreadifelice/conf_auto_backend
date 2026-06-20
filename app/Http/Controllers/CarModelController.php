@@ -20,6 +20,11 @@ class CarModelController extends Controller
         return response()->json($models);
     }
 
+    public function adminIndex()
+    {
+        return CarModel::all();
+    }
+
     public function store(CarModelRequest $request)
     {
         $data = $request->validated();
