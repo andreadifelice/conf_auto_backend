@@ -1,58 +1,127 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Progetto backend: configuratore auto
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Configurazione connessione del database
+Rinomia il file `.env.example` in `.env` e inserisci i dati necessari per collegare il DB al backend.
 
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Comandi Utili
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+# Avvia server di sviluppo (PHP built-in)
+php -S localhost:8000 -t public
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## 1. Architettura del progetto
 
-## Contributing
+Il backend è sviluppato in **PHP 8.3+** con **Laravel 13**, seguendo un'architettura MVC orientata alle API REST in formato JSON.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+L'obiettivo principale è gestire il **catalogo veicoli** (modelli, motori, colori, optional) e permettere agli utenti autenticati di **salvare configurazioni personalizzate** e scaricare un **preventivo in PDF**. Gli amministratori gestiscono l'intero catalogo tramite endpoint protetti.
 
-## Code of Conduct
+## Componenti principali:
+- **Laravel Sanctum** — autenticazione tramite token API
+- **Eloquent ORM** — modelli e relazioni tra entità
+- **Form Request** — validazione centralizzata degli input
+- **DomPDF** — generazione del preventivo PDF
+- **Mail** — invio OTP per la verifica email e link per il reset password
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 2. Struttura del database
 
-## Security Vulnerabilities
+Il sistema utilizza **PostgreSQL** come motore di database. Lo schema è organizzato attorno al catalogo auto e alle configurazioni salvate dagli utenti.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Tabelle principali
 
-## License
+| Tabella | Descrizione |
+|---------|-------------|
+| `users` | Utenti dell'applicazione (`role`: `user` o `admin`), con campi OTP per la verifica email |
+| `categories` | Categorie di veicoli (nome, slug) |
+| `car_models` | Modelli auto con prezzo base, anno, descrizione e stato attivo/inattivo |
+| `car_model_images` | Immagini associate a ciascun modello |
+| `engines` | Motori disponibili con tipo carburante, cavalli e prezzo aggiuntivo |
+| `colors` | Colori disponibili con codice esadecimale |
+| `optionals` | Optional e accessori con categoria e prezzo |
+| `configurations` | Configurazioni salvate dagli utenti con prezzo totale e stato |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Tabelle di relazione (molti-a-molti)
+
+| Tabella | Collega |
+|---------|---------|
+| `car_model_engine` | Modelli ↔ motori disponibili per ciascun modello |
+| `car_model_optional` | Modelli ↔ optional disponibili per ciascun modello |
+| `car_color` | Modelli ↔ colori, con `price_surcharge` per ogni combinazione |
+| `configuration_optional` | Configurazioni ↔ optional selezionati |
+| `optional_compatibilities` | Regole tra optional (`requires_optional_id`, `excludes_optional_id`) |
+
+### Vincoli di integrità
+
+- **Chiavi esterne** su tutte le relazioni principali (`category_id`, `car_model_id`, `engine_id`, `color_id`, `user_id`, ecc.)
+- **Un modello non può essere eliminato** se è ancora referenziato da una o più configurazioni
+- **Il colore in una configurazione** deve essere tra quelli disponibili per il modello scelto (validato anche a livello applicativo)
+- **Compatibilità optional:** un optional può richiedere (`requires`) o escludere (`excludes`) un altro optional
+- **Cascade on delete** su `car_color` e `car_model_images` quando viene rimosso un modello
+
+## 3. Struttura del Progetto
+
+```
+conf_auto_backend/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AuthController.php                  # Registrazione, login, logout
+│   │   │   ├── CarModelController.php              # Catalogo modelli auto
+│   │   │   ├── CarModelEngineController.php        # Associazioni modello–motore
+│   │   │   ├── CarModelOptionalController.php      # Associazioni modello–optional
+│   │   │   ├── CarColorController.php              # Associazioni modello–colore
+│   │   │   ├── CategoryController.php              # Categorie veicoli
+│   │   │   ├── ColorController.php                 # Colori
+│   │   │   ├── ConfigurationController.php         # Salvataggio configurazioni e PDF
+│   │   │   ├── EmailVerificationController.php     # Verifica email via OTP
+│   │   │   ├── EngineController.php                # Motori
+│   │   │   ├── OptionalController.php              # Optional
+│   │   │   ├── OptionalCompatibilityController.php # Regole requires/excludes
+│   │   │   ├── PasswordResetController.php         # Reset password
+│   │   │   └── UserController.php                  # Gestione utenti
+│   │   ├── Middleware/
+│   │   │   └── IsAdmin.php                         # Protezione route admin
+│   │   ├── Requests/                               # Validazione input API
+│   │   └── Resources/
+│   │       └── UserResource.php                    # Serializzazione utente
+│   ├── Mail/
+│   │   └── SendOtpMail.php                         # Email con codice OTP
+│   ├── Models/
+│   │   ├── CarModel.php
+│   │   ├── CarModelImage.php
+│   │   ├── Category.php
+│   │   ├── Color.php
+│   │   ├── Configuration.php
+│   │   ├── Engine.php
+│   │   ├── Optional.php
+│   │   └── User.php
+│   └── Providers/
+│       └── AppServiceProvider.php
+├── bootstrap/
+│   └── app.php                                     # Bootstrap dell'applicazione
+├── config/
+│   ├── app.php
+│   ├── auth.php
+│   ├── cors.php                                    # Configurazione CORS
+│   ├── database.php                                # Configurazione database
+│   └── sanctum.php                                 # Autenticazione API token
+├── database/
+│   ├── factories/
+│   │   └── UserFactory.php
+│   └── migrations/                                 # Schema tabelle e relazioni
+├── public/
+│   └── index.php                                   # Entry point
+├── resources/
+│   └── views/
+│       └── receipts/
+│           └── configuration.blade.php             # Template PDF preventivo
+├── routes/
+│   ├── api.php                                     # Definizione delle rotte API
+│   └── console.php
+├── storage/
+│   └── app/public/car-models/                      # Immagini modelli auto
+├── tests/
+    ├── Feature/
+    └── Unit/
+
+```

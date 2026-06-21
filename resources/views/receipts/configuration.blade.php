@@ -42,6 +42,7 @@
         <tr>
             <th>Colore</th>
             <td>{{ $configuration->color->name }}</td>
+            <td>€ {{ number_format($configuration->carModel->colors->firstWhere('id', $configuration->color_id)?->pivot->price_surcharge ?? 0, 2, ',', '.') }}</td>
         </tr>
         @endif
     </table>
